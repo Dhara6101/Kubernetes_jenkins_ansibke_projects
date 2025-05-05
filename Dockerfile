@@ -1,12 +1,11 @@
-FROM centos:7
-MAINTAINER shikhardevops@gmail.com
-RUN yum install -y httpd \
- zip\
- unzip
-ADD https://www.free-css.com/assets/files/free-css-templates/download/page285/viking.zip /var/www/html/
-WORKDIR /var/www/html/
-RUN unzip viking.zip
-RUN cp -rvf viking/* .
-RUN rm -rf viking viking.zip
-CMD ["/usr/sbin/httpd", "-D", "FOREGROUND"]
-EXPOSE 80 443
+# Use the official Apache HTTP Server image as the base
+FROM httpd:2.4
+
+# Copy custom website content into the container
+# Place your HTML files in the 'public-html' directory next to this Dockerfile
+COPY ./public-html/ /usr/local/apache2/htdocs/
+
+# Expose port 80
+EXPOSE 80
+
+# The httpd base image automatically runs Apache in the foreground, no CMD needed
