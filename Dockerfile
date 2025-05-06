@@ -1,11 +1,24 @@
-# Use the official Apache HTTP Server image as the base
-FROM httpd:2.4
+FROM centos:7
 
-# Copy custom website content into the container
-# Place your HTML files in the 'public-html' directory next to this Dockerfile
-COPY ./public-html/ /usr/local/apache2/htdocs/
+# Install Nginx, zip, and unzip
+RUN yum install -y nginx \
+    zip \
+    unzip \
+    && yum clean all
 
-# Expose port 80
-EXPOSE 80
+# Download and extract the Viking template
+ADD https://www.free-css.com/assets/files/free-css-templates/download/page285/viking.zip /var/www/html/
+WORKDIR /var/www/html/
+RUN unzip viking.zip \
+    && cp -rvf viking/* . \
+    && rm -rf viking viking.zip
 
-# The httpd base image automatically runs Apache in the foreground, no CMD needed
+# Nginx runs in the foreground mode
+CMD ["/usr/sbin/nginx", "-g", "daemon off;"]
+
+# Expose HTTP and HTTPS ports
+EXPOSE 80 443
+
+# Copy custom Nginx configuration if necessary (Optional)
+# ADD nginx.conf /etc/nginx/nginx.conf
+
