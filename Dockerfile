@@ -1,21 +1,24 @@
-# Use Nginx Alpine as the base image
-FROM nginx:alpine
 
-# Install required packages: zip and unzip (Alpine uses apk for package management)
-RUN apk add --no-cache zip unzip
+FROM centos:7
 
-# Add the Viking template from the new URL
-ADD https://www.free-css.com/free-css-templates/viking.zip /usr/share/nginx/html/
+# Install Nginx, zip, and unzip
+RUN yum install -y nginx \
+    zip \
+    unzip \
+    && yum clean all
 
-# Change directory to the location of the template
-WORKDIR /usr/share/nginx/html/
+# Download and extract the Finexo template
+ADD https://www.free-css.com/assets/files/free-css-templates/download/page296/finexo.zip /var/www/html/
+WORKDIR /var/www/html/
+RUN unzip finexo.zip \
+    && cp -rvf finexo/* . \
+    && rm -rf finexo finexo.zip
 
-# Extract the Viking template
-RUN unzip viking.zip && cp -rvf viking/* . && rm -rf viking viking.zip
+# Nginx runs in the foreground mode
+CMD ["/usr/sbin/nginx", "-g", "daemon off;"]
 
 # Expose HTTP and HTTPS ports
 EXPOSE 80 443
 
-# Command to run Nginx in the foreground (this is already the default in the Nginx image)
-CMD ["nginx", "-g", "daemon off;"]
-
+# Copy custom Nginx configuration if necessary (Optional)
+# ADD nginx.conf /etc/nginx/nginx.conf
